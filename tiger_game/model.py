@@ -18,7 +18,6 @@ class Action(str, Enum):
 class Observation(str, Enum):
     HEAR_LEFT = "hear_left"
     HEAR_RIGHT = "hear_right"
-    DUMMY = "dummy"
 
 
 @dataclass(frozen=True)
@@ -51,9 +50,7 @@ class TigerGame:
         return {State.LEFT: 0.5, State.RIGHT: 0.5}
 
     def observations(self, action: Action) -> tuple[Observation, ...]:
-        if action is Action.LISTEN:
-            return (Observation.HEAR_LEFT, Observation.HEAR_RIGHT)
-        return (Observation.DUMMY,)
+        return (Observation.HEAR_LEFT, Observation.HEAR_RIGHT)
 
     def observation_probability(
         self,
@@ -61,10 +58,12 @@ class TigerGame:
         action: Action,
         observation: Observation,
     ) -> float:
+        if observation not in (Observation.HEAR_LEFT, Observation.HEAR_RIGHT):
+            return 0.0
+        if action in (Action.OPEN_LEFT, Action.OPEN_RIGHT):
+            return 0.5
         if action is Action.LISTEN:
             if observation is Observation.HEAR_LEFT:
                 return self.p_correct if state is State.LEFT else 1.0 - self.p_correct
-            if observation is Observation.HEAR_RIGHT:
-                return 1.0 - self.p_correct if state is State.LEFT else self.p_correct
-            return 0.0
-        return 1.0 if observation is Observation.DUMMY else 0.0
+            return 1.0 - self.p_correct if state is State.LEFT else self.p_correct
+        raise ValueError(f"unknown action: {action}")

@@ -45,3 +45,7 @@ The counts are not monotone because pruning removes alpha vectors that are not p
 - Record the maximum number of alpha vectors before and after pruning.
 - Track threshold locations and best-action regions across horizons.
 - Validate the known 0.85 two-signal behavior against the original Tiger paper.
+
+## Paper Alignment
+
+The model now follows the paper literally for OPEN observations: both LEFT and RIGHT observations occur with probability 0.5 and leave the belief unchanged. The earlier dummy-observation implementation was value-equivalent, so the sweep counts did not change.

@@ -31,7 +31,7 @@ class TigerGameModelTest(unittest.TestCase):
         )
         self.assertEqual(
             self.game.observations(Action.OPEN_LEFT),
-            (Observation.DUMMY,),
+            (Observation.HEAR_LEFT, Observation.HEAR_RIGHT),
         )
 
     def test_85_percent_emissions(self) -> None:
@@ -47,6 +47,16 @@ class TigerGameModelTest(unittest.TestCase):
             ),
             0.15,
         )
+
+    def test_open_observations_are_uninformative(self) -> None:
+        for state in State:
+            for observation in (Observation.HEAR_LEFT, Observation.HEAR_RIGHT):
+                self.assertAlmostEqual(
+                    self.game.observation_probability(
+                        state, Action.OPEN_LEFT, observation
+                    ),
+                    0.5,
+                )
 
 
 if __name__ == "__main__":

@@ -32,3 +32,14 @@ Expected: `best_actions` is `["listen"]` and `value` is `-1.0`.
 ```powershell
 python -m unittest discover -s tests -v
 ```
+## Paper Verification
+
+The implementation is checked against the Tiger Game model and policy structure in the Cassandra/Kaelbling/Littman papers.
+
+Run:
+
+```powershell
+python -m unittest tests.test_paper_benchmarks -v
+```
+
+See `docs/tiger-game-paper-verification.md`.

@@ -25,7 +25,7 @@ class BeliefUpdateTest(unittest.TestCase):
 
     def test_open_resets_to_half(self) -> None:
         value = update_belief(
-            0.95, Action.OPEN_LEFT, Observation.DUMMY, self.game
+            0.95, Action.OPEN_LEFT, Observation.HEAR_LEFT, self.game
         )
         self.assertAlmostEqual(value, 0.5)
 
