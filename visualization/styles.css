@@ -271,7 +271,9 @@ button:focus-visible {
   place-items: center;
   height: 190px;
   font-family: var(--display);
-  font-size: clamp(5rem, 9vw, 9rem);
+  font-size: clamp(2.8rem, 5.8vw, 6rem);
+  white-space: nowrap;
+  letter-spacing: -0.04em;
   color: rgba(242, 234, 216, 0.16);
   transition: color 260ms ease, transform 320ms ease;
 }
