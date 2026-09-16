@@ -836,3 +836,47 @@ footer {
     transition-duration: 0.01ms !important;
   }
 }
+.masthead-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.language-switch {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.language-switch a {
+  min-width: 52px;
+  padding: 8px 10px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.67rem;
+  letter-spacing: 0.08em;
+}
+
+.language-switch a + button {
+  border-left: 1px solid var(--line);
+}
+
+.language-switch a.active {
+  color: var(--ink);
+  background: var(--teal);
+}
+
+@media (max-width: 1180px) {
+  .masthead-side {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .language-switch {
+    align-self: flex-start;
+  }
+}

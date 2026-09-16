@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <script src="data.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="i18n.js" defer></script>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -18,7 +19,12 @@
       <h1>老虎在听<span>。</span></h1>
       <p class="lede">在不确定性中，什么时候继续听，什么时候必须开门。</p>
     </div>
-    <div class="masthead-stats" aria-label="当前实验状态">
+    <div class="masthead-side">
+      <div class="language-switch" id="languageControl" aria-label="Language">
+        <a href="?lang=en" data-language="en" class="active">EN</a>
+        <a href="?lang=zh" data-language="zh">中文</a>
+      </div>
+    <div class="masthead-stats" aria-label="Current experiment state">
       <div>
         <span class="stat-label">当前信念</span>
         <strong id="headerBelief">50.0%</strong>
@@ -31,6 +37,7 @@
         <span class="stat-label">累计得分</span>
         <strong id="headerScore">0</strong>
       </div>
+    </div>
     </div>
   </header>
 
