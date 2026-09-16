@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0f0e">
+  <title>Tiger Game Strategy Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="masthead">
+    <div class="masthead-copy">
+      <div class="eyebrow">CS298 · POMDP SIGNAL ROOM</div>
+      <h1>老虎在听<span>。</span></h1>
+      <p class="lede">在不确定性中，什么时候继续听，什么时候必须开门。</p>
+    </div>
+    <div class="masthead-stats" aria-label="当前实验状态">
+      <div>
+        <span class="stat-label">当前信念</span>
+        <strong id="headerBelief">50.0%</strong>
+      </div>
+      <div>
+        <span class="stat-label">剩余决策</span>
+        <strong id="headerSteps">2</strong>
+      </div>
+      <div>
+        <span class="stat-label">累计得分</span>
+        <strong id="headerScore">0</strong>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-grid">
+    <section class="panel stage-panel">
+      <div class="panel-head">
+        <div>
+          <span class="panel-index">01</span>
+          <h2>两道门</h2>
+        </div>
+        <div class="status-pill" id="episodeStatus">等待动作</div>
+      </div>
+
+      <div class="doors" id="doors">
+        <button class="door door-left" id="doorLeft" type="button" aria-label="左门">
+          <span class="door-top">LEFT</span>
+          <span class="door-glyph" id="leftGlyph">?</span>
+          <span class="door-label" id="leftDoorLabel">未知</span>
+        </button>
+        <div class="door-center">
+          <span class="signal-orbit" aria-hidden="true"></span>
+          <span class="signal-core" aria-hidden="true"></span>
+          <span class="signal-caption">SIGNAL</span>
+        </div>
+        <button class="door door-right" id="doorRight" type="button" aria-label="右门">
+          <span class="door-top">RIGHT</span>
+          <span class="door-glyph" id="rightGlyph">?</span>
+          <span class="door-label" id="rightDoorLabel">未知</span>
+        </button>
+      </div>
+
+      <div class="belief-block">
+        <div class="belief-labels">
+          <span>老虎更可能在左</span>
+          <span id="beliefText">50.0% / 50.0%</span>
+          <span>老虎更可能在右</span>
+        </div>
+        <div class="belief-rail" aria-label="老虎在左侧的概率">
+          <div class="belief-danger belief-danger-left"></div>
+          <div class="belief-danger belief-danger-right"></div>
+          <div class="belief-marker" id="beliefMarker"></div>
+          <div class="belief-tick belief-tick-01"></div>
+          <div class="belief-tick belief-tick-09"></div>
+        </div>
+        <div class="belief-scale">
+          <span>0%</span>
+          <span>10%</span>
+          <span>50%</span>
+          <span>90%</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="action-button primary" id="listenButton" type="button">
+          <span class="button-key">L</span>
+          <span><strong>倾听</strong><small>支付 -1，获得信号</small></span>
+        </button>
+        <button class="action-button" id="openLeftButton" type="button">
+          <span class="button-key">←</span>
+          <span><strong>打开左门</strong><small>正确 +10 / 错误 -100</small></span>
+        </button>
+        <button class="action-button" id="openRightButton" type="button">
+          <span class="button-key">→</span>
+          <span><strong>打开右门</strong><small>正确 +10 / 错误 -100</small></span>
+        </button>
+      </div>
+      <div class="control-grid">
+        <div class="control-group">
+          <span class="control-label">听音准确率</span>
+          <div class="segmented" id="accuracyControl">
+            <button type="button" data-value="0.85" class="active">85%</button>
+            <button type="button" data-value="0.70">70%</button>
+            <button type="button" data-value="0.65">65%</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <span class="control-label">决策期限</span>
+          <div class="segmented" id="horizonControl">
+            <button type="button" data-value="1">1</button>
+            <button type="button" data-value="2" class="active">2</button>
+            <button type="button" data-value="3">3</button>
+            <button type="button" data-value="4">4</button>
+          </div>
+        </div>
+        <div class="control-group control-actions">
+          <button class="utility-button" id="autoStepButton" type="button">自动走一步</button>
+          <button class="utility-button" id="autoPlayButton" type="button">连续播放</button>
+          <button class="utility-button ghost" id="resetButton" type="button">重开</button>
+          <button class="utility-button ghost" id="resetScoreButton" type="button">清零得分</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel insight-panel">
+      <div class="panel-head">
+        <div>
+          <span class="panel-index">02</span>
+          <h2>此刻该怎么选</h2>
+        </div>
+        <div class="confidence-chip" id="confidenceChip">不确定</div>
+      </div>
+
+      <div class="recommendation">
+        <span class="recommendation-kicker">建议动作</span>
+        <h3 id="recommendedAction">继续倾听</h3>
+        <p id="recommendationReason">再获取一次信号，通常比在 50% 不确定时直接开门更划算。</p>
+      </div>
+
+      <div class="q-board">
+        <div class="q-row" data-action="listen">
+          <span>LISTEN</span>
+          <strong id="qListen">-1.00</strong>
+          <div class="q-track"><i id="qListenBar"></i></div>
+        </div>
+        <div class="q-row" data-action="open_left">
+          <span>OPEN LEFT</span>
+          <strong id="qOpenLeft">-45.00</strong>
+          <div class="q-track"><i id="qOpenLeftBar"></i></div>
+        </div>
+        <div class="q-row" data-action="open_right">
+          <span>OPEN RIGHT</span>
+          <strong id="qOpenRight">-45.00</strong>
+          <div class="q-track"><i id="qOpenRightBar"></i></div>
+        </div>
+      </div>
+
+      <div class="signal-history">
+        <div class="section-label">本回合信号</div>
+        <div class="signal-chips" id="signalHistory">
+          <span class="empty-chip">还没有听到信号</span>
+        </div>
+      </div>
+
+      <div class="paper-card">
+        <div class="section-label">论文基准</div>
+        <p><strong>85% 准确率：</strong>同一边连续领先两次，信念约 96.98%，然后开另一扇门。</p>
+        <p><strong>65% 准确率：</strong>需要同一边领先五次，信念约 95.67%。</p>
+        <p><strong>两期价值函数：</strong>恰好由五个线性区域组成。</p>
+      </div>
+    </aside>
+    <section class="panel chart-panel">
+      <div class="panel-head">
+        <div>
+          <span class="panel-index">03</span>
+          <h2>价值函数全景</h2>
+        </div>
+        <div class="chart-legend">
+          <span><i class="legend-listen"></i>LISTEN</span>
+          <span><i class="legend-open-left"></i>OPEN LEFT</span>
+          <span><i class="legend-open-right"></i>OPEN RIGHT</span>
+          <span><i class="legend-value"></i>VALUE</span>
+        </div>
+      </div>
+      <div class="chart-shell">
+        <svg id="valueChart" role="img" aria-label="Tiger Game Q 值与最优价值曲线"></svg>
+      </div>
+      <p class="chart-note">横轴是“老虎在左边”的当前信念。粗线是价值函数，细线是各动作的 Q 值；虚线标出论文中的 10% 与 90% 临界点。</p>
+    </section>
+
+    <section class="panel log-panel">
+      <div class="panel-head">
+        <div>
+          <span class="panel-index">04</span>
+          <h2>决策轨迹</h2>
+        </div>
+        <div class="score-line">本回合 <strong id="episodeScore">0</strong> 分</div>
+      </div>
+      <ol class="strategy-log" id="strategyLog">
+        <li class="log-empty">点击“倾听”或“打开门”，这里会解释每一步为什么这样选择。</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <span>Tiger Game exact finite-horizon visualizer</span>
+    <span>No soccer. No generic POMG. Strategy first.</span>
+  </footer>
+</body>
+</html>

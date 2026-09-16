@@ -43,3 +43,28 @@ python -m unittest tests.test_paper_benchmarks -v
 ```
 
 See `docs/tiger-game-paper-verification.md`.
+
+## Visualizer
+
+The strategy visualizer lives in `visualization/`.
+
+Regenerate its exact policy data:
+
+```powershell
+python -m scripts.export_visualization_data
+```
+
+Open it locally:
+
+```powershell
+python -m http.server 8765 --directory visualization
+```
+
+Then visit `http://127.0.0.1:8765/index.html`.
+
+The page focuses on strategy intuition:
+
+- live belief updates after LISTEN;
+- Q values and the value-function envelope;
+- manual and automatic policy execution;
+- the paper's two-signal and five-signal policy benchmarks.
