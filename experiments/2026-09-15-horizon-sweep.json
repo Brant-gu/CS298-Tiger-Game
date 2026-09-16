@@ -1,0 +1,136 @@
+{
+  "rows": [
+    {
+      "alpha_count": 3,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 1,
+      "p_correct": 0.85,
+      "segments": 3,
+      "value": -1.0
+    },
+    {
+      "alpha_count": 7,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 2,
+      "p_correct": 0.85,
+      "segments": 5,
+      "value": -2.0
+    },
+    {
+      "alpha_count": 11,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 3,
+      "p_correct": 0.85,
+      "segments": 7,
+      "value": 2.719999999999999
+    },
+    {
+      "alpha_count": 9,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 4,
+      "p_correct": 0.85,
+      "segments": 6,
+      "value": 2.4212499999999997
+    },
+    {
+      "alpha_count": 3,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 1,
+      "p_correct": 0.7,
+      "segments": 3,
+      "value": -1.0
+    },
+    {
+      "alpha_count": 7,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 2,
+      "p_correct": 0.7,
+      "segments": 5,
+      "value": -2.0
+    },
+    {
+      "alpha_count": 11,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 3,
+      "p_correct": 0.7,
+      "segments": 8,
+      "value": -3.0
+    },
+    {
+      "alpha_count": 19,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 4,
+      "p_correct": 0.7,
+      "segments": 13,
+      "value": -2.9000000000000017
+    },
+    {
+      "alpha_count": 3,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 1,
+      "p_correct": 0.65,
+      "segments": 3,
+      "value": -1.0
+    },
+    {
+      "alpha_count": 7,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 2,
+      "p_correct": 0.65,
+      "segments": 5,
+      "value": -2.0
+    },
+    {
+      "alpha_count": 11,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 3,
+      "p_correct": 0.65,
+      "segments": 8,
+      "value": -3.0
+    },
+    {
+      "alpha_count": 19,
+      "belief_left": 0.5,
+      "best_actions": [
+        "listen"
+      ],
+      "horizon": 4,
+      "p_correct": 0.65,
+      "segments": 12,
+      "value": -4.0
+    }
+  ]
+}

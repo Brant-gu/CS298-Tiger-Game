@@ -1,0 +1,9 @@
+[project]
+name = "tiger-game"
+version = "0.1.0"
+description = "Exact finite-horizon solver for the Tiger Game POMDP"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["tiger_game*"]
