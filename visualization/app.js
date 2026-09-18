@@ -90,8 +90,8 @@
     return { q, value, best };
   }
 
-  function countLinearRegions(vectors) {
-    if (!vectors.length) return 0;
+  function getLinearRegions(vectors) {
+    if (!vectors.length) return [];
     const lines = [];
     const seen = new Set();
     for (const vector of vectors) {
@@ -113,8 +113,7 @@
       }
     }
     const ordered = [...points].sort((a, b) => a - b);
-    let count = 0;
-    let previous = null;
+    const regions = [];
     for (let index = 0; index < ordered.length - 1; index += 1) {
       const belief = (ordered[index] + ordered[index + 1]) / 2;
       let winner = null;
@@ -123,12 +122,28 @@
         if (!winner || score > winner[0] + 1e-10) winner = [score, line[0], line[1]];
       }
       const key = winner[1] + ":" + winner[2];
-      if (key !== previous) {
-        count += 1;
-        previous = key;
+      const previous = regions[regions.length - 1];
+      if (previous && previous.key === key) {
+        previous.end = ordered[index + 1];
+      } else {
+        regions.push({ key, start: ordered[index], end: ordered[index + 1] });
       }
     }
-    return count;
+    return regions;
+  }
+
+  function countLinearRegions(vectors) {
+    return getLinearRegions(vectors).length;
+  }
+
+  function regionIndexAt(vectors, belief) {
+    const regions = getLinearRegions(vectors);
+    for (let index = 0; index < regions.length; index += 1) {
+      if (belief >= regions[index].start - 1e-10 && belief <= regions[index].end + 1e-10) {
+        return { index: index + 1, total: regions.length, region: regions[index] };
+      }
+    }
+    return { index: regions.length, total: regions.length, region: regions[regions.length - 1] };
   }
 
   function choosePolicyAction(result) {
@@ -317,7 +332,7 @@
     const recommended = state.over ? null : choosePolicyAction(result);
     const bars = normalizeBars(result.q);
 
-    el.linearRegionCount.textContent = String(countLinearRegions(vectors));
+    el.linearRegionCount.textContent = String(getLinearRegions(vectors).length);
     el.headerBelief.textContent = `${(state.belief * 100).toFixed(1)}%`;
     el.headerSteps.textContent = String(Math.max(0, state.remaining));
     el.headerScore.textContent = String(state.cumulativeScore);
@@ -545,6 +560,14 @@
     svg.appendChild(markerLabel);
 
     if (state.chartHoverBelief !== null) {
+      const regionInfo = regionIndexAt(getVectors(), state.chartHoverBelief);
+      svg.appendChild(svgNode("rect", {
+        x: x(regionInfo.region.start),
+        y: margin.top,
+        width: x(regionInfo.region.end) - x(regionInfo.region.start),
+        height: innerH,
+        fill: "rgba(223,191,109,.08)",
+      }));
       const hoverX = x(state.chartHoverBelief);
       const hoverResult = evaluatePolicy(state.chartHoverBelief, getVectors());
       const hoverY = y(hoverResult.value);
@@ -582,6 +605,7 @@
     const tooltip = el.valueChartTooltip;
     tooltip.hidden = false;
     tooltip.innerHTML = [
+      "<span>REGION</span><strong>" + regionIndexAt(getVectors(), state.chartHoverBelief).index + " / " + regionIndexAt(getVectors(), state.chartHoverBelief).total + "</strong>",
       "<span>b</span><strong>" + (state.chartHoverBelief * 100).toFixed(1) + "%</strong>",
       "<span>V</span><strong>" + result.value.toFixed(2) + "</strong>",
       "<span>LISTEN</span><strong>" + result.q.listen.toFixed(2) + "</strong>",

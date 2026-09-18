@@ -14,6 +14,12 @@ class StrategyChartInteractionTest(unittest.TestCase):
         self.assertIn("#valueChart", css)
         self.assertIn("height: 100%", css)
 
+    def test_hover_region_index_logic_exists(self) -> None:
+        script = Path("visualization/app.js").read_text(encoding="utf-8")
+        self.assertIn("function getLinearRegions", script)
+        self.assertIn("function regionIndexAt", script)
+        self.assertIn("REGION", script)
+
     def test_chart_interaction_logic_exists(self) -> None:
         script = Path("visualization/app.js").read_text(encoding="utf-8")
         self.assertIn("function countLinearRegions", script)
