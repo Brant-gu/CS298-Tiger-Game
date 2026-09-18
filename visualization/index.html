@@ -191,7 +191,7 @@
           <span class="panel-index">03</span>
           <h2>价值函数全景</h2>
         </div>
-        <div class="chart-legend">
+        <div class="chart-meta"><div class="region-count">线性区域 <strong id="linearRegionCount">3</strong></div><div class="chart-legend">
           <span><i class="legend-listen"></i>LISTEN</span>
           <span><i class="legend-open-left"></i>OPEN LEFT</span>
           <span><i class="legend-open-right"></i>OPEN RIGHT</span>
@@ -199,6 +199,7 @@
         </div>
       </div>
       <div class="chart-shell">
+        <div class="chart-tooltip" id="valueChartTooltip" hidden></div>
         <svg id="valueChart" role="img" aria-label="Tiger Game Q 值与最优价值曲线"></svg>
       </div>
       <p class="chart-note">横轴是“老虎在左边”的当前信念。粗线是价值函数，细线是各动作的 Q 值；虚线标出论文中的 10% 与 90% 临界点。</p>

@@ -47,6 +47,7 @@
     ["偏向左侧", "Leaning Left"],
     ["高置信", "High Confidence"],
     ["建议动作", "Recommended Action"],
+    ["线性区域", "Linear Regions"],
     ["继续倾听", "Keep Listening"],
     ["本回合已结束", "Episode Complete"],
     ["门已经打开，下一局会自动重新开始。", "The door has been opened. The next episode starts automatically."],

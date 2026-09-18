@@ -18,6 +18,7 @@
     over: false,
     autoTimer: null,
     resetTimer: null,
+    chartHoverBelief: null,
   };
 
   const el = {
@@ -56,6 +57,9 @@
     resetButton: document.getElementById("resetButton"),
     resetScoreButton: document.getElementById("resetScoreButton"),
     valueChart: document.getElementById("valueChart"),
+    valueChartTooltip: document.getElementById("valueChartTooltip"),
+    chartShell: document.querySelector(".chart-shell"),
+    linearRegionCount: document.getElementById("linearRegionCount"),
   };
 
   function randomSide() {
@@ -84,6 +88,47 @@
     const value = Math.max(...Object.values(q));
     const best = ACTIONS.filter((action) => Math.abs(q[action] - value) <= 1e-8);
     return { q, value, best };
+  }
+
+  function countLinearRegions(vectors) {
+    if (!vectors.length) return 0;
+    const lines = [];
+    const seen = new Set();
+    for (const vector of vectors) {
+      const slope = Math.round((vector.values[0] - vector.values[1]) * 1e12) / 1e12;
+      const intercept = Math.round(vector.values[1] * 1e12) / 1e12;
+      const key = slope + ":" + intercept;
+      if (!seen.has(key)) {
+        seen.add(key);
+        lines.push([slope, intercept]);
+      }
+    }
+    const points = new Set([0, 1]);
+    for (let first = 0; first < lines.length; first += 1) {
+      for (let second = first + 1; second < lines.length; second += 1) {
+        const denominator = lines[first][0] - lines[second][0];
+        if (Math.abs(denominator) <= 1e-12) continue;
+        const point = (lines[second][1] - lines[first][1]) / denominator;
+        if (point >= 0 && point <= 1) points.add(point);
+      }
+    }
+    const ordered = [...points].sort((a, b) => a - b);
+    let count = 0;
+    let previous = null;
+    for (let index = 0; index < ordered.length - 1; index += 1) {
+      const belief = (ordered[index] + ordered[index + 1]) / 2;
+      let winner = null;
+      for (const line of lines) {
+        const score = line[1] + line[0] * belief;
+        if (!winner || score > winner[0] + 1e-10) winner = [score, line[0], line[1]];
+      }
+      const key = winner[1] + ":" + winner[2];
+      if (key !== previous) {
+        count += 1;
+        previous = key;
+      }
+    }
+    return count;
   }
 
   function choosePolicyAction(result) {
@@ -131,6 +176,8 @@
     state.logs = [];
     state.episodeScore = 0;
     state.over = false;
+    state.chartHoverBelief = null;
+    if (el.valueChartTooltip) el.valueChartTooltip.hidden = true;
     el.episodeStatus.textContent = status;
     el.episodeStatus.classList.remove("live");
     setDoorsHidden();
@@ -270,6 +317,7 @@
     const recommended = state.over ? null : choosePolicyAction(result);
     const bars = normalizeBars(result.q);
 
+    el.linearRegionCount.textContent = String(countLinearRegions(vectors));
     el.headerBelief.textContent = `${(state.belief * 100).toFixed(1)}%`;
     el.headerSteps.textContent = String(Math.max(0, state.remaining));
     el.headerScore.textContent = String(state.cumulativeScore);
@@ -495,6 +543,60 @@
     });
     markerLabel.textContent = `${(state.belief * 100).toFixed(1)}% → ${currentResult.value.toFixed(2)}`;
     svg.appendChild(markerLabel);
+
+    if (state.chartHoverBelief !== null) {
+      const hoverX = x(state.chartHoverBelief);
+      const hoverResult = evaluatePolicy(state.chartHoverBelief, getVectors());
+      const hoverY = y(hoverResult.value);
+      svg.appendChild(svgNode("line", {
+        x1: hoverX,
+        x2: hoverX,
+        y1: margin.top,
+        y2: margin.top + innerH,
+        stroke: "#dfbf6d",
+        "stroke-width": 1,
+        "stroke-dasharray": "3 3",
+      }));
+      svg.appendChild(svgNode("circle", {
+        cx: hoverX,
+        cy: hoverY,
+        r: 5,
+        fill: "#dfbf6d",
+        stroke: "#0a0e0d",
+        "stroke-width": 2,
+      }));
+    }
+  }
+
+  function chartBeliefFromEvent(event) {
+    const rect = el.valueChart.getBoundingClientRect();
+    const viewX = (event.clientX - rect.left) / rect.width * 1000;
+    const belief = (viewX - 72) / 900;
+    return Math.max(0, Math.min(1, belief));
+  }
+
+  function handleChartMove(event) {
+    state.chartHoverBelief = chartBeliefFromEvent(event);
+    const result = evaluatePolicy(state.chartHoverBelief, getVectors());
+    renderChart(result);
+    const tooltip = el.valueChartTooltip;
+    tooltip.hidden = false;
+    tooltip.innerHTML = [
+      "<span>b</span><strong>" + (state.chartHoverBelief * 100).toFixed(1) + "%</strong>",
+      "<span>V</span><strong>" + result.value.toFixed(2) + "</strong>",
+      "<span>LISTEN</span><strong>" + result.q.listen.toFixed(2) + "</strong>",
+      "<span>OPEN LEFT</span><strong>" + result.q.open_left.toFixed(2) + "</strong>",
+      "<span>OPEN RIGHT</span><strong>" + result.q.open_right.toFixed(2) + "</strong>"
+    ].join("");
+    const shellRect = el.chartShell.getBoundingClientRect();
+    tooltip.style.left = Math.min(shellRect.width - 210, event.clientX - shellRect.left + 14) + "px";
+    tooltip.style.top = Math.max(12, event.clientY - shellRect.top + 12) + "px";
+  }
+
+  function handleChartLeave() {
+    state.chartHoverBelief = null;
+    el.valueChartTooltip.hidden = true;
+    renderChart(evaluatePolicy(state.belief, getVectors()));
   }
   function stopAutoPlay() {
     if (state.autoTimer) {
@@ -547,6 +649,9 @@
     state.cumulativeScore = 0;
     resetEpisode("得分已清零");
   });
+
+  el.valueChart.addEventListener("mousemove", handleChartMove);
+  el.valueChart.addEventListener("mouseleave", handleChartLeave);
 
   window.addEventListener("keydown", (event) => {
     if (event.key.toLowerCase() === "l") actListen();
