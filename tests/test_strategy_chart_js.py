@@ -14,6 +14,13 @@ class StrategyChartInteractionTest(unittest.TestCase):
         self.assertIn("#valueChart", css)
         self.assertIn("height: 100%", css)
 
+    def test_chart_coordinate_mapping_accounts_for_letterboxing(self) -> None:
+        script = Path("visualization/app.js").read_text(encoding="utf-8")
+        self.assertIn("preserveAspectRatio", script)
+        self.assertIn("renderedWidth", script)
+        self.assertIn("offsetX", script)
+        self.assertIn("CHART_GEOMETRY", script)
+
     def test_hover_region_index_logic_exists(self) -> None:
         script = Path("visualization/app.js").read_text(encoding="utf-8")
         self.assertIn("function getLinearRegions", script)

@@ -5,6 +5,11 @@
   if (!DATA) throw new Error("Tiger visualization data was not loaded.");
 
   const ACTIONS = ["listen", "open_left", "open_right"];
+  const CHART_GEOMETRY = {
+    width: 1000,
+    height: 410,
+    margin: { top: 24, right: 28, bottom: 48, left: 72 },
+  };
   const state = {
     accuracy: 0.85,
     horizon: 2,
@@ -414,12 +419,13 @@
   function renderChart(currentResult) {
     const svg = el.valueChart;
     svg.innerHTML = "";
-    const width = 1000;
-    const height = 410;
-    const margin = { top: 24, right: 28, bottom: 48, left: 72 };
+    const width = CHART_GEOMETRY.width;
+    const height = CHART_GEOMETRY.height;
+    const margin = CHART_GEOMETRY.margin;
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
     const samples = Array.from({ length: 101 }, (_, index) => index / 100);
     const evaluated = samples.map((belief) => ({ belief, ...evaluatePolicy(belief, getVectors()) }));
@@ -593,8 +599,15 @@
 
   function chartBeliefFromEvent(event) {
     const rect = el.valueChart.getBoundingClientRect();
-    const viewX = (event.clientX - rect.left) / rect.width * 1000;
-    const belief = (viewX - 72) / 900;
+    const scale = Math.min(
+      rect.width / CHART_GEOMETRY.width,
+      rect.height / CHART_GEOMETRY.height
+    );
+    const renderedWidth = CHART_GEOMETRY.width * scale;
+    const offsetX = (rect.width - renderedWidth) / 2;
+    const viewX = (event.clientX - rect.left - offsetX) / scale;
+    const innerW = CHART_GEOMETRY.width - CHART_GEOMETRY.margin.left - CHART_GEOMETRY.margin.right;
+    const belief = (viewX - CHART_GEOMETRY.margin.left) / innerW;
     return Math.max(0, Math.min(1, belief));
   }
 
