@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import product
+import time
 
-from tiger_game.alphas import AlphaVector, prune_alpha_vectors
+from tiger_game.alphas import AlphaVector, prune_alpha_vectors_detailed
+from tiger_game.metrics import SolveResult, SolverMetrics, count_segments, distinct_value_lines
 from tiger_game.model import Action, State, TigerGame
 
 
@@ -12,15 +14,38 @@ class TigerSolver:
     game: TigerGame
 
     def solve(self, horizon: int) -> list[AlphaVector]:
+        return self.solve_with_metrics(horizon).vectors
+
+    def solve_with_metrics(self, horizon: int) -> SolveResult:
         if horizon < 1:
             raise ValueError("horizon must be positive")
 
+        started = time.perf_counter()
         vectors = [AlphaVector((0.0, 0.0), Action.LISTEN)]
+        raw_count = 0
+        deduplicated_count = 0
         for _ in range(horizon):
-            vectors = self._backup(vectors)
-        return vectors
+            generated = self._generate_vectors(vectors)
+            raw_count = len(generated)
+            prune_result = prune_alpha_vectors_detailed(generated)
+            deduplicated_count = prune_result.deduplicated_count
+            vectors = prune_result.vectors
 
-    def _backup(self, previous: list[AlphaVector]) -> list[AlphaVector]:
+        runtime_ms = (time.perf_counter() - started) * 1000.0
+        metrics = SolverMetrics(
+            horizon=horizon,
+            accuracy=self.game.p_correct,
+            discount=self.game.discount,
+            raw_alpha_count=raw_count,
+            deduplicated_alpha_count=deduplicated_count,
+            pruned_alpha_count=len(vectors),
+            distinct_value_lines=distinct_value_lines(vectors),
+            segments=count_segments(vectors),
+            runtime_ms=runtime_ms,
+        )
+        return SolveResult(vectors=vectors, metrics=metrics)
+
+    def _generate_vectors(self, previous: list[AlphaVector]) -> list[AlphaVector]:
         generated: list[AlphaVector] = []
 
         for action in Action:
@@ -42,7 +67,7 @@ class TigerSolver:
                     values.append(total)
                 generated.append(AlphaVector(tuple(values), action))
 
-        return prune_alpha_vectors(generated)
+        return generated
 
 
 def q_values(vectors: list[AlphaVector], belief_left: float) -> dict[Action, float]:

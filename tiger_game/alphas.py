@@ -6,6 +6,13 @@ from tiger_game.model import Action
 
 
 @dataclass(frozen=True)
+class PruneResult:
+    vectors: list[AlphaVector]
+    input_count: int
+    deduplicated_count: int
+
+
+@dataclass(frozen=True)
 class AlphaVector:
     values: tuple[float, float]
     action: Action
@@ -21,6 +28,13 @@ def prune_alpha_vectors(
     vectors: list[AlphaVector],
     tolerance: float = 1e-10,
 ) -> list[AlphaVector]:
+    return prune_alpha_vectors_detailed(vectors, tolerance).vectors
+
+
+def prune_alpha_vectors_detailed(
+    vectors: list[AlphaVector],
+    tolerance: float = 1e-10,
+) -> PruneResult:
     unique: dict[tuple[int, int, Action], AlphaVector] = {}
     for vector in vectors:
         key = (
@@ -32,7 +46,7 @@ def prune_alpha_vectors(
     candidates = list(unique.values())
 
     if len(candidates) <= 1:
-        return candidates
+        return PruneResult(candidates, len(vectors), len(candidates))
 
     lines = [
         (vector.values[0] - vector.values[1], vector.values[1])
@@ -64,4 +78,8 @@ def prune_alpha_vectors(
             for index, value in enumerate(values)
             if abs(value - best) <= tolerance
         )
-    return [candidates[index] for index in sorted(keep)]
+    return PruneResult(
+        [candidates[index] for index in sorted(keep)],
+        len(vectors),
+        len(candidates),
+    )

@@ -9,6 +9,8 @@
   <script src="data.js" defer></script>
   <script src="app.js" defer></script>
   <script src="i18n.js" defer></script>
+  <script src="dashboard-data.js" defer></script>
+  <script src="dashboard.js" defer></script>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -20,6 +22,10 @@
       <p class="lede">在不确定性中，什么时候继续听，什么时候必须开门。</p>
     </div>
     <div class="masthead-side">
+      <div class="view-tabs" id="viewTabs">
+        <button type="button" data-view="strategy" class="active">Strategy Lab</button>
+        <button type="button" data-view="dashboard">Experiment Dashboard</button>
+      </div>
       <div class="language-switch" id="languageControl" aria-label="Language">
         <a href="?lang=en" data-language="en" class="active">EN</a>
         <a href="?lang=zh" data-language="zh">中文</a>
@@ -210,6 +216,7 @@
         <li class="log-empty">点击“倾听”或“打开门”，这里会解释每一步为什么这样选择。</li>
       </ol>
     </section>
+    <section id="dashboardView" class="dashboard-view" hidden></section>
   </main>
 
   <footer>
