@@ -11,6 +11,9 @@ class DashboardJavaScriptTest(unittest.TestCase):
         self.assertIn('renderSvgChart("dashboardAlphaChart"', text)
         self.assertNotIn('id="valueChart"', text)
         self.assertNotIn('renderSvgChart("valueChart"', text)
+        self.assertIn('class="chart-key"', text)
+        self.assertIn('t("rawSeries")', text)
+        self.assertIn('t("prunedSeries")', text)
 
 
 if __name__ == "__main__":
