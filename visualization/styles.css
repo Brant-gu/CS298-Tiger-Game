@@ -1217,3 +1217,28 @@ footer {
   font-weight: 500;
   text-align: right;
 }
+
+
+/* Keep the value chart readable on wide screens instead of scaling its height with page width. */
+.chart-shell {
+  height: clamp(340px, 32vw, 520px);
+  min-height: 0;
+}
+
+#valueChart {
+  height: 100%;
+  min-height: 0;
+}
+
+.dashboard-card svg {
+  height: 300px;
+  min-height: 0;
+}
+
+@media (max-width: 760px) {
+  .chart-shell {
+    height: 360px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

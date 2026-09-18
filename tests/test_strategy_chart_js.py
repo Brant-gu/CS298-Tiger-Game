@@ -8,6 +8,12 @@ class StrategyChartInteractionTest(unittest.TestCase):
         self.assertIn('id="linearRegionCount"', html)
         self.assertIn('id="valueChartTooltip"', html)
 
+    def test_chart_height_is_bounded(self) -> None:
+        css = Path("visualization/styles.css").read_text(encoding="utf-8")
+        self.assertIn("height: clamp(340px, 32vw, 520px)", css)
+        self.assertIn("#valueChart", css)
+        self.assertIn("height: 100%", css)
+
     def test_chart_interaction_logic_exists(self) -> None:
         script = Path("visualization/app.js").read_text(encoding="utf-8")
         self.assertIn("function countLinearRegions", script)
