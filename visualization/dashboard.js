@@ -86,8 +86,8 @@
     '</div>',
     '<div class="metric-grid" id="metricGrid"></div>',
     '<div class="dashboard-chart-grid">',
-    '  <section class="dashboard-card"><h3>' + t("valueChart") + '</h3><div id="valueChart"></div></section>',
-    '  <section class="dashboard-card"><h3>' + t("alphaChart") + '</h3><div id="alphaChart"></div></section>',
+    '  <section class="dashboard-card"><h3>' + t("valueChart") + '</h3><div id="dashboardValueChart"></div></section>',
+    '  <section class="dashboard-card"><h3>' + t("alphaChart") + '</h3><div id="dashboardAlphaChart"></div></section>',
     '</div>',
     '<section class="dashboard-card policy-card"><h3>' + t("policyTitle") + '</h3><p>' + t("policyNote") + '</p><div class="policy-band" id="policyBand"></div><div class="policy-legend" id="policyLegend"></div></section>',
     '<section class="dashboard-card table-card"><div class="table-head"><h3>' + t("tableTitle") + '</h3><button type="button" id="exportCsv">' + t("exportCsv") + '</button></div><div class="table-wrap"><table id="experimentTable"></table></div></section>'
@@ -195,8 +195,8 @@
       thick: true,
       values: DATA.available_horizons.map((horizon) => runForHorizon(horizon).metrics.value_at_belief)
     }];
-    renderSvgChart("valueChart", valueSeries, "VALUE");
-    renderSvgChart("alphaChart", [
+    renderSvgChart("dashboardValueChart", valueSeries, "VALUE");
+    renderSvgChart("dashboardAlphaChart", [
       { color: "#ffb000", values: DATA.available_horizons.map((horizon) => runForHorizon(horizon).metrics.raw_alpha_count) },
       { color: "#25c4ad", values: DATA.available_horizons.map((horizon) => runForHorizon(horizon).metrics.pruned_alpha_count) }
     ], "COUNT");
